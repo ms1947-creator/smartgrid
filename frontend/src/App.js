@@ -76,22 +76,29 @@ function App() {
   });
 
   useEffect(() => {
-    const handleData = (payload) => {
-      const time = new Date().toLocaleTimeString([], { 
-        hour: '2-digit', minute: '2-digit', second: '2-digit' 
-      });
+      const handleData = (payload) => {
+    const time = new Date().toLocaleTimeString([], { 
+      hour: '2-digit', minute: '2-digit', second: '2-digit' 
+    });
 
-      setData(prev => ({
-        ...prev,
-        ...payload,
-        labels: [...prev.labels.slice(-(MAX_DATA_POINTS - 1)), time],
-        solar: [...prev.solar.slice(-(MAX_DATA_POINTS - 1)), payload.solar],
-        wind: [...prev.wind.slice(-(MAX_DATA_POINTS - 1)), payload.wind],
-        battery: [...prev.battery.slice(-(MAX_DATA_POINTS - 1)), payload.battery],
-        current: [...prev.current.slice(-(MAX_DATA_POINTS - 1)), payload.current],
-      }));
-    };
+    setData(prev => ({
+      ...prev,
 
+      // ✅ convert ALL values to numbers
+      labels: [...prev.labels.slice(-(MAX_DATA_POINTS - 1)), time],
+      solar: [...prev.solar.slice(-(MAX_DATA_POINTS - 1)), Number(payload.solar)],
+      wind: [...prev.wind.slice(-(MAX_DATA_POINTS - 1)), Number(payload.wind)],
+      battery: [...prev.battery.slice(-(MAX_DATA_POINTS - 1)), Number(payload.battery)],
+      current: [...prev.current.slice(-(MAX_DATA_POINTS - 1)), Number(payload.current)],
+
+      // ✅ keep status values
+      r1: payload.r1,
+      r2: payload.r2,
+      r3: payload.r3,
+      on: Number(payload.on),
+      off: Number(payload.off)
+    }));
+  };
     socket.on("data", handleData);
     return () => socket.off("data", handleData);
   }, []);
